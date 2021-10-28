@@ -8,6 +8,13 @@ app.use(express.json());
 
 // api to add hardcoded user
 app.get("/addhardcodeduser", userController.addHardcodedUser);
+app.get("/builaddhardcodeduser", userController.buldAddHardcodedUser);
+app.get("/findallusers", userController.findAllUsers);
+app.get("/findfirstuser", userController.findFirstUser);
+app.get("/getonlyfewcolumns", userController.getOnlyFewColumnsOfAll);
+app.get("/excludeandinclude", userController.excludeAndInclude);
+app.get("/findqueries", userController.findQueries);
+app.get("/getbygrouporderlimit", userController.getByGroupOrderLimit);
 
 // creates listener for accepting requests
 app.listen({ port: 5000 }, async () => {

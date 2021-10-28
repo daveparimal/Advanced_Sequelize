@@ -79,5 +79,151 @@ data.destroy()
 // Truncate / empty the table 
 const data = Users.destroy({truncate: true});
 
+// Bulk Insert 
+const data = await Users.bulkCreate([
+  {name: "parimal", email:"test@gmail.com", gender:"male"},
+  {name: "parimal", email:"test@gmail.com", gender:"male"}
+  {name: "parimal", email:"test@gmail.com", gender:"male"}
+  ])
+
+// If you want to push data only related to some fields in database:
+E.g. if you want to push only gender and email
+
+const data = await Users.create({name:"parimal dave", email:"test@gmail.com", gender:"male"}, {fields:['gender', 'email']});
 
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Select Queries
+**********************
+// Get all data from data
+const data = await User.findAll()
+
+// Get first data
+const data = await User.findOne()
+
+// Get only couple of coulmns from data
+const data = await User.findAll({
+  attributes:['name','email']
+})
+
+// Change name of columns after retrieving
+const data = await User.findAll({
+  attributes:['name', ['email', 'emailId']]
+})
+
+// Count the number of items retrieved.
+Make sure sequelize is imported:
+const { sequelize } = require("./models");
+
+Then
+const data = await User.findAll({
+  attributes:[
+    'name', 
+    ['email', 'emailId'],
+    [sequelize.fn('Count', sequelize.col('email')), 'email_count']
+    ],
+    group: ["name", "email"],
+}) 
+
+So for [sequelize.fn('Count', sequelize.col('email')), 'email_count']
+first parameter is function, 
+  Inside function first parameter is "which function to apply like count/concat", 
+  and second parameter inside function is column name 
+second parameter is column name
+
+Also we need to group by to make this work
+
+To append a string to each item of column the sequelize function in attribute should be:
+[sequelize.fn('CONCAT', sequelize.col('email'), "test"), 'email_count']
+
+// Exclude some columns in response
+const data = await User.findAll({
+  attributes:{exclude:['createdAt','modifiedAt']}
+}) 
+
+// include some columns in response
+const data = await User.findAll({
+  attributes:{
+    exclude:['createdAt','modifiedAt'],
+    include:[
+      [sequelize.fn('CONCAT', sequelize.col('name'), "dave"), 'full_name']
+    ]
+  }
+})  
+
+Condition Queries
+********************************
+// basic find
+const data = await User.findAll({
+  where: {id: 1}
+})
+
+// operator
+Make sure you import Op at the top.
+const { sequelize, Op } = require("./models");
+then 
+const data = await User.findAll({
+  where: {
+    id:{
+      [Op.eq]:2 // id equal to 2
+    },
+    email:{
+      [Op.like]:"%@gmail.com" // prefixed with anything but ends with @gmail.com
+    }
+  }
+})
+
+For more operators and functionality see operators section in below link https://sequelize.org/master/manual/model-querying-basics.html
+
+
+Group By / Order By / Limit
+**********************************
+// Order By, grouby and limit
+const data = await User.findAll({
+  where: {
+    id:{
+      [Op.gt]:2 // id equal to 2
+    },
+    email:{
+      [Op.like]:"%@gmail.com" // prefixed with anything but ends with @gmail.com
+    }
+  },
+  orderBy:[
+    [name, 'DESC'],
+    [email, 'DESC']
+  ],
+  group:['name', 'email']
+  limit:2, // will limit to only 2 records
+  offset:1 // catch skip first record
+})
+
+// Get only count
+const data = await User.count()
+
+Finders
+***************************************
+// find by primary key
+const data = await User.findByPk(3)
+
+// find and count all
+const data = await User.findAndCountAll({
+  where:{
+    email:{
+      [Op.like]:"%@gmail.com"
+    }
+  }
+}) 
+
+// find or create.
+cosnt [data, created] = await User.findOrCreate({
+  where:{
+    name:"dummy",
+  },
+  defaults:{
+    name:"test",
+    email:"test@gmail.com",
+    gender:"Male"
+  }
+})
+
+Here it will return 2 things, you will get the data inside "data" variable and a boolean value if it is created. Either true or false.
