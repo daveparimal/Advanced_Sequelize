@@ -227,3 +227,129 @@ cosnt [data, created] = await User.findOrCreate({
 })
 
 Here it will return 2 things, you will get the data inside "data" variable and a boolean value if it is created. Either true or false.
+
+Setters/Geeters
+*********************************************************************
+Getter - get from db, do something to that data and then send backend.
+Seetter - data will be manipultated first and then stored in database. Like hashing of passwords.
+Set it where model is defined.
+
+// setter and getters
+  User.init(
+    {
+      name: {
+        type: DataTypes.STRING,
+        set(value) {
+          this.setDataValue("name", value + "Setter Dave");
+        },
+      },
+      email: {
+        type: DataTypes.STRING,
+        get() {
+          return this.getDataValue("email").toUpperCase();
+        },
+      },
+      gender: DataTypes.STRING,
+    },
+    {
+      sequelize,
+      tableName: "users",
+      modelName: "User",
+    }
+  );
+
+  Validations and constraints 
+  **************************************************************
+  Applied on model.
+  Data should be valid, should be unique, etc.
+
+  For constraints check
+  // constraints added later for creating customized migration file.
+
+  For Validations check
+  // validations added later for creating customized migration file.
+
+  Running Raw queries
+  *****************************************************
+  Needs QueryType on top to run
+  const { QueryType } = require("sequelize");
+  const users = await db.sequelize.query("SELECT * from users")
+  There are other parameter that go as second parameter in query function. Check documentation for more details.
+  check
+  // raw query example
+
+  Associations - One to one
+  Associations- One to many
+  ********************************************************
+  If user has one post. And a post belong to one user. Then below are the functions we need to add in static associate:
+
+    In User model:
+    this.hasOne(Posts, { foreignKey: "user_id",});
+    In Posts Model:
+    this.belongsTo(User, { foreignKey: "user_id" });
+
+    If we want to attach user details to post list, then only foreign key is needed in post model.
+
+  If a user has many post. Then :
+    In User model:
+    this.hasMany(Posts, { foreignKey: "user_id",});
+    In Posts Model:
+    this.belongsTo(User, { foreignKey: "user_id" });  
+
+    check code 
+    // one to one
+    // one to many
+
+PLEASE NOTE: Defining One to One or One does not mean that we cannot add posts with same user_id. The database will allow (unless unique is set).
+The way we can differentiate this is, if Find all user api call is made and if there more than one posts attached to a user. Then one to one use case the response will be:
+[{name:xx, post:{name:xx}}, {name:xx, post:{name:yy}}]
+while in case of one to many, response will be:
+{name:xx, post:[{name:xx}, {name:yy}]}
+
+// Associations - Many to Many
+************************************************************
+A post has many tags associated to it like sports, latest, popular and tags can be associated to many posts. This is why many to many is considered.
+In this case a seperate table is created usually to manage the mappings with ID. In this case a table called post_tags was created which had mappings of various posts with IDs
+
+check code 
+// many to many
+
+  Migrations
+  ************************************************************
+  Tutorial
+  https://www.youtube.com/watch?v=a5Wh_LDXtLc
+
+  Query Interface Link
+  https://sequelize.org/master/class/lib/dialects/abstract/query-interface.js~QueryInterface.html
+
+check for code with comment
+  // Custom Migrations Demo
+
+Try/catch error handling
+*******************************************************************
+try {
+  const data = await User.create({name:"test", email"test@gmail.com", gender:"male"})
+} catch (e) {
+  const messages = {};
+  e.error.forEach((error) => {
+    let message;
+    switch(error.validatorKey) {
+      case "not_unique":
+      message = "Duplicate Email"
+      break;
+
+      case "isIn:
+      message = "Gender not in list"
+      break; 
+
+      case "equals:
+      message = "Gender not male"
+      break;     
+    }
+  messages[error.path] = message
+
+  console.log(messages);
+  // print default message from backend
+  // console.log(error.message)
+  })
+}

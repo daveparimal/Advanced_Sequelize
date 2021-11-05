@@ -1,5 +1,5 @@
-const { User, sequelize } = require("../models");
-const { Op } = require("sequelize");
+const { User, sequelize, Posts, tags, PostTags } = require("../models");
+const { Op, QueryTypes } = require("sequelize");
 
 const addHardcodedUser = async (req, res) => {
   const data = await User.create({
@@ -11,7 +11,7 @@ const addHardcodedUser = async (req, res) => {
 };
 
 // Bulk Insert
-const buldAddHardcodedUser = async (req, res) => {
+const bulkAddHardcodedUser = async (req, res) => {
   const data = await User.bulkCreate([
     { name: "parimal2", email: "test2@gmail.com", gender: "male" },
     { name: "parimal3", email: "test3@gmail.com", gender: "female" },
@@ -23,7 +23,9 @@ const buldAddHardcodedUser = async (req, res) => {
 
 // Get all data from data
 const findAllUsers = async (req, res) => {
-  const data = await User.findAll();
+  // const data = await User.findAll();
+  // raw query example
+  const data = await sequelize.query("SELECT * from users");
   res.status(200).json(data);
 };
 
@@ -126,13 +128,80 @@ const getByGroupOrderLimit = async (req, res) => {
   res.status(200).json({ data, data1, data2, data3, created });
 };
 
+const addData = async (req, res) => {
+  // const data = await Posts.create({
+  //   name: "Test Name",
+  //   title: "Test title",
+  //   content: "Test Content",
+  //   user_id: 1,
+  // });
+  // const data = await tags.bulkCreate([
+  //   {
+  //     name: "Latest",
+  //   },
+  //   {
+  //     name: "Sports",
+  //   },
+  //   {
+  //     name: "Popular",
+  //   },
+  // ]);
+  // const data = await PostTags.bulkCreate([
+  //   {
+  //     post_id: 1,
+  //     tag_id: 1,
+  //   },
+  //   {
+  //     post_id: 1,
+  //     tag_id: 2,
+  //   },
+  //   {
+  //     post_id: 2,
+  //     tag_id: 3,
+  //   },
+  // ]);
+  // res.status(200).json(data);
+};
+
+// one to one
+// one to many
+const getOneToOne = async (req, res) => {
+  const data = await User.findAll({
+    where: { id: 1 },
+    include: [{ model: Posts, attributes: ["name", "title", "content"] }],
+  });
+
+  // const data = await Posts.findAll({
+  //   include: [{ model: User }],
+  // });
+  res.status(200).json(data);
+};
+
+// many to many
+const manyOneToMany = async (req, res) => {
+  // Many to Many Post to Tag
+  // const data = await Posts.findAll({
+  //   where: { id: 1 },
+  //   include: [{ model: tags }],
+  // });
+
+  // Many to Many Tag to Post
+  const data = await tags.findAll({
+    include: [{ model: Posts }],
+  });
+  res.status(200).json(data);
+};
+
 module.exports = {
   addHardcodedUser,
-  buldAddHardcodedUser,
+  bulkAddHardcodedUser,
   findAllUsers,
   findFirstUser,
   getOnlyFewColumnsOfAll,
   excludeAndInclude,
   findQueries,
   getByGroupOrderLimit,
+  getOneToOne,
+  addData,
+  manyOneToMany,
 };

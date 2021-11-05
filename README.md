@@ -10,3 +10,4 @@ npm install --save pg pg-hstore
 
 sequelize init
 sequelize model:generate --name User --attributes name:string,email:string,gender:string
+sequelize migratations:generate --name unique-email
