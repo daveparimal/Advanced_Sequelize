@@ -18,10 +18,22 @@ app.get("/getbygrouporderlimit", userController.getByGroupOrderLimit);
 app.get("/adddata", userController.addData);
 app.get("/onetoone", userController.getOneToOne);
 app.get("/manytomany", userController.manyOneToMany);
+app.get("/scopes", userController.Scope);
+app.get("/addOneToManyPolymorpicData", userController.oneToManyPolymorphic);
+app.get(
+  "/readOneToManyPolymorpicData",
+  userController.readOneToManyPolymorphic
+);
+app.get("/addimagevideotagdata", userController.addImageVideoTagData);
+app.get(
+  "/readManyToManyPolymorpicData",
+  userController.readManyToManyPolymorphic
+);
+app.get("/transactions", userController.transactionsExample);
 
 // creates listener for accepting requests
 app.listen({ port: 5000 }, async () => {
-  console.log("Server up on http://localhosT:5000");
+  console.log("Server up on http://localhost:5000");
 
   // Creates tables in database based on models we have
   // Will drop database everytime the app runs. So we need to change this. Hence commented

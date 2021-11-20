@@ -1,11 +1,21 @@
-const { User, sequelize, Posts, tags, PostTags } = require("../models");
+const {
+  User,
+  sequelize,
+  Posts,
+  tags,
+  PostTags,
+  Image,
+  Video,
+  Comment,
+  ImageVideoTag,
+} = require("../models");
 const { Op, QueryTypes } = require("sequelize");
 
 const addHardcodedUser = async (req, res) => {
   const data = await User.create({
-    name: "Parimal Dave",
-    email: "parimal@gmail.com",
-    gender: "Male",
+    name: "Parimal Dave 9",
+    email: "parimal9@gmail.com",
+    gender: "female",
   });
   res.status(200).json(data);
 };
@@ -23,9 +33,9 @@ const bulkAddHardcodedUser = async (req, res) => {
 
 // Get all data from data
 const findAllUsers = async (req, res) => {
-  // const data = await User.findAll();
+  const data = await User.findAll();
   // raw query example
-  const data = await sequelize.query("SELECT * from users");
+  // const data = await sequelize.query("SELECT * from users");
   res.status(200).json(data);
 };
 
@@ -129,35 +139,12 @@ const getByGroupOrderLimit = async (req, res) => {
 };
 
 const addData = async (req, res) => {
-  // const data = await Posts.create({
-  //   name: "Test Name",
-  //   title: "Test title",
-  //   content: "Test Content",
-  //   user_id: 1,
-  // });
   // const data = await tags.bulkCreate([
   //   {
-  //     name: "Latest",
+  //     name: "Football",
   //   },
   //   {
-  //     name: "Sports",
-  //   },
-  //   {
-  //     name: "Popular",
-  //   },
-  // ]);
-  // const data = await PostTags.bulkCreate([
-  //   {
-  //     post_id: 1,
-  //     tag_id: 1,
-  //   },
-  //   {
-  //     post_id: 1,
-  //     tag_id: 2,
-  //   },
-  //   {
-  //     post_id: 2,
-  //     tag_id: 3,
+  //     name: "Article",
   //   },
   // ]);
   // res.status(200).json(data);
@@ -192,6 +179,177 @@ const manyOneToMany = async (req, res) => {
   res.status(200).json(data);
 };
 
+// scopes example
+const Scope = async (req, res) => {
+  const data = await User.scope(["genderFilter"]).findAll();
+  res.status(200).json(data);
+};
+
+const oneToManyPolymorphic = async (req, res) => {
+  // const image = await Image.bulkCreate([
+  //   {
+  //     title: "Image 1",
+  //     image_url: "Image 1 URL",
+  //   },
+  //   {
+  //     title: "Image 2",
+  //     image_url: "Image 2 URL",
+  //   },
+  // ]);
+  // const video = await Video.bulkCreate([
+  //   {
+  //     title: "Video 1",
+  //     video_url: "Video 1 URL",
+  //   },
+  //   {
+  //     title: "Video 2",
+  //     video_url: "Video 2 URL",
+  //   },
+  // ]);
+  // const comment = await Comment.bulkCreate([
+  //   {
+  //     comment: "Image 1 is good",
+  //     asset_id: "1",
+  //     asset_type: "image",
+  //   },
+  //   {
+  //     comment: "Image 2 is good",
+  //     asset_id: "2",
+  //     asset_type: "image",
+  //   },
+  //   {
+  //     comment: "Video 1 is good",
+  //     asset_id: "1",
+  //     asset_type: "video",
+  //   },
+  //   {
+  //     comment: "Video 2 is good",
+  //     asset_id: "2",
+  //     asset_type: "video",
+  //   },
+  // ]);
+  // res.status(200).json({...image, ...video, ...comment});
+};
+
+// for One to Many PolyMorphic
+const readOneToManyPolymorphic = async (req, res) => {
+  // Image to Comment
+  // const data = await Image.findAll({
+  //   include: [
+  //     {
+  //       model: Comment,
+  //     },
+  //   ],
+  // });
+
+  // Video to Comment
+  // const data = await Video.findAll({
+  //   include: [
+  //     {
+  //       model: Comment,
+  //     },
+  //   ],
+  // });
+
+  // Comment to video/image
+  const data = await Comment.findAll({
+    include: [Image, Video],
+  });
+  res.status(200).json(data);
+};
+
+const addImageVideoTagData = async (req, res) => {
+  // const data = await ImageVideoTag.bulkCreate([
+  //   {
+  //     tag_id: 1,
+  //     asset_type: "image",
+  //     asset_id: 1,
+  //   },
+  //   {
+  //     tag_id: 2,
+  //     asset_type: "image",
+  //     asset_id: 1,
+  //   },
+  //   {
+  //     tag_id: 3,
+  //     asset_type: "image",
+  //     asset_id: 2,
+  //   },
+  //   {
+  //     tag_id: 4,
+  //     asset_type: "video",
+  //     asset_id: 1,
+  //   },
+  //   {
+  //     tag_id: 7,
+  //     asset_type: "video",
+  //     asset_id: 2,
+  //   },
+  //   {
+  //     tag_id: 8,
+  //     asset_type: "video",
+  //     asset_id: 2,
+  //   },
+  // ]);
+  // res.status(200).json(data);
+};
+
+// for Many to Many PolyMorphic
+const readManyToManyPolymorphic = async (req, res) => {
+  // Image to Tag
+  // const data = await Image.findAll({
+  //   include: [tags],
+  // });
+  // Video to Tag
+  // const data = await Video.findAll({
+  //   include: [tags],
+  // });
+  // Tag to Image/video
+  const data = await tags.findAll({
+    include: [Image, Video],
+  });
+  // lazy loading
+  // const data = await User.findOne({ where: { id: 1 } });
+  // const posts = await data.getPosts();
+  // const response = {
+  //   user: data,
+  //   posts: posts,
+  // };
+  // eager loading
+  // const data = await User.findOne({ where: { id: 1 }, include: [Posts] });
+  // res.status(200).json(data);
+};
+
+// transaction examples
+const transactionsExample = async (req, res) => {
+  // To make this example work,
+  // read operation (findOne) is working fine
+  // But for create there already exists a user with same email id so it will fail
+  // so entire transaction will roll back.
+  // this example is still not perfect since the error is not going in the catch block
+  // its giving validation error in console.
+  // still roll back and transaction id could be seen in the logs
+  try {
+    const response = sequelize.transaction(async () => {
+      await User.findOne({ where: { id: 100 } });
+      const user = await User.create({
+        id: 5,
+        name: "Parimal Dave 10",
+        email: "parimal10@gmail.com",
+        gender: "male",
+      });
+      return user;
+    });
+    return res.status(200).json(response);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      ok: false,
+      errors: err,
+    });
+  }
+};
+
 module.exports = {
   addHardcodedUser,
   bulkAddHardcodedUser,
@@ -204,4 +362,10 @@ module.exports = {
   getOneToOne,
   addData,
   manyOneToMany,
+  Scope,
+  oneToManyPolymorphic,
+  readOneToManyPolymorphic,
+  addImageVideoTagData,
+  readManyToManyPolymorphic,
+  transactionsExample,
 };

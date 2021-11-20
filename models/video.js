@@ -1,33 +1,26 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class tags extends Model {
+  class Video extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ Posts, PostTags, Image, Video, ImageVideoTag }) {
+    static associate({ Comment, tags, ImageVideoTag }) {
       // define association here
-      this.belongsToMany(Posts, {
-        through: PostTags,
-        foreignKey: "tag_id",
+      // for One to Many PolyMorphic
+      this.hasMany(Comment, {
+        foreignKey: "asset_id",
+        constraints: false,
+        scope: {
+          // for One to Many PolyMorphic
+          asset_type: "video",
+        },
       });
 
       // for Many to Many PolyMorphic
-      this.belongsToMany(Image, {
-        through: {
-          model: ImageVideoTag,
-          unique: false,
-          scope: {
-            asset_type: "image",
-          },
-        },
-        foreignKey: "tag_id",
-        constraints: false,
-      });
-      // for Many to Many PolyMorphic
-      this.belongsToMany(Video, {
+      this.belongsToMany(tags, {
         through: {
           model: ImageVideoTag,
           unique: false,
@@ -35,20 +28,21 @@ module.exports = (sequelize, DataTypes) => {
             asset_type: "video",
           },
         },
-        foreignKey: "tag_id",
+        foreignKey: "asset_id",
         constraints: false,
       });
     }
   }
-  tags.init(
+  Video.init(
     {
-      name: DataTypes.STRING,
+      title: DataTypes.STRING,
+      video_url: DataTypes.STRING,
     },
     {
       sequelize,
-      tableName: "tags",
-      modelName: "tags",
+      modelName: "Video",
+      tableName: "videos",
     }
   );
-  return tags;
+  return Video;
 };

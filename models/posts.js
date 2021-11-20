@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     // one to many
     static associate({ User, tags, PostTags }) {
       // define association here
+      // scopes example
       this.belongsTo(User, { foreignKey: "user_id" });
       this.belongsToMany(tags, {
         through: PostTags,

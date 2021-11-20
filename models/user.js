@@ -52,9 +52,30 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     {
+      // scopes: {
+      //   // scopes example
+      //   genderFilter: {
+      //     where: {
+      //       gender: "female",
+      //     },
+      //   },
+      //   includePosts: {
+      //     include: {           // same as include you can also have attributes, limit, etc too in scope.
+      //       model: Posts,
+      //     },
+      //
+      //   },
+      // },
       sequelize,
       tableName: "users",
       modelName: "User",
+      // hooks: {
+      //   // hooks added
+      //   beforeValidate: (user, options) => {
+      //     // console.log("Hooks below");
+      //     // console.log(user);
+      //   },
+      // },
     }
   );
   return User;

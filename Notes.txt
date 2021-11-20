@@ -314,6 +314,122 @@ In this case a seperate table is created usually to manage the mappings with ID.
 check code 
 // many to many
 
+Scope
+***********************************************************
+Used to create reusable code for querying. If we apply a scope, then then code will run 
+eveytime a query is made on that model.
+check code
+// scopes example
+
+One to Many PolyMorphic
+************************************************************
+sequelize model:generate --name Comment --attributes comment:string,asset_id:integer,asset_type:integer
+sequelize model:generate --name Image --attributes title:string,image_url:string
+sequelize model:generate --name Video --attributes title:string,video_url:string
+sequelize db:migrate
+
+check code
+// for One to Many PolyMorphic
+
+Many to Many PolyMorphic
+***********************************************************
+sequelize model:generate --name ImageVideoTag --attributes tag_id:integer,asset_type:string,asset_id:integer
+
+check code
+// for Many to Many PolyMorphic
+
+Lazy and Eager Loading
+***********************************************************
+  const data = await Video.findAll({
+    include: [tags],
+  });
+
+  In this case when you include something in the query, this is eager loading
+
+  Now,
+
+  const data = await User.findOne({ where: { id: 1 } });
+  const posts = await data.getPosts();
+  const response = {
+    user: data,
+    posts: posts,
+  };
+
+  In thisc case you use the response from first to query the second. THe format is use get<ModelName>. 
+  In this case we are trying to find number of posts which this user has posted, so it is getPosts()
+
+  Check code
+  // lazy loading
+  // eager loading
+
+  Paranoid
+  *******************************************
+  Used for doing soft delete, that means record stays in table but is not returned on querying
+  done by setting paranoid true in the table
+
+  E.g. in models
+    PostTags.init(
+    {
+      post_id: DataTypes.INTEGER,
+      tag_id: DataTypes.INTEGER,
+    },
+    {
+      sequelize,
+      paranoid: true,
+      tableName: "post_tags",
+      modelName: "PostTags",
+      deletedAt:'destroyTime'
+    }
+  );
+
+  Setting paranoid: true, will add a column called deletedAt in your model. If you want to rename it use deletedAt:'destroyTime'
+
+  Upon deletion on any row in a table, deletedAt rown will have time when its deleted, else it is null
+
+  We can also restore data, instead of use PostTags.delete queruy use PostTags.restore with the proper id of row that needs to be restored.
+
+  Transactions
+  ************************************************************
+  Transactions means if data is not updated properly in table then that data will be rolled back.
+  Example if order table is updated but payments table is not getting updated due to some error then both the tables data will be rolled back.
+
+  Check code
+  // transaction examples 
+
+
+  Hooks 
+  ************************************************************
+  Used to do things like:
+  1) Before data is inserted
+  2) After data is inserted
+  3) Before data is validated
+  4) After data is validated,
+
+  etc.. there are a lot of Hooks.
+
+  E.g. in models
+      User.init(
+    {
+      name: DataTypes.STRING,
+      email: DataTypes.STRING,
+    },
+    {
+      sequelize,
+      tableName: "post_tags",
+      modelName: "PostTags",
+      hooks: {
+          beforeValidate: (user, option) => { // user is the data that is being passed.
+          user.name = 'dummy test data'
+        }
+      }
+    }
+  );
+
+  Basically used, if we want to do followup task everytime data is updated in a table
+
+  check code
+  // hooks added
+
   Migrations
   ************************************************************
   Tutorial
@@ -324,6 +440,24 @@ check code
 
 check for code with comment
   // Custom Migrations Demo
+
+Seeders
+**************************************************************
+To create new sequelize script:
+sequelize seed:generate --name tags-add
+
+To run all seeder script:
+sequelize db:seed:all
+
+To run seeder script
+sequelize db:seed <see_file_name.js>
+
+To undo seeder script
+sequelize db:seed:undo:all
+
+check code
+// seeder up
+// seeder down
 
 Try/catch error handling
 *******************************************************************
